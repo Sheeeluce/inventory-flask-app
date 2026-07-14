@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from inventory import inventory
+from api import get_product
 
 
 app = Flask(__name__)
@@ -7,6 +8,10 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     return "Inventory Management API"
+
+@app.route("/items")
+def get_all_items():
+    return jsonify(inventory)
 
 @app.route("/items/<int:item_id>")
 def get_items(item_id):
@@ -19,12 +24,13 @@ def get_items(item_id):
 @app.route("/items", methods = ["POST"])
 def add_item():
     data = request.get_json()
+    product = get_product(data["barcode"])
     new_item = {
         "id": len(inventory) + 1,
-        "barcode": data["barcode"],
-        "product_name": data["product_name"],
-        "brand": data["brand"],
-        "ingredients": data["ingredients"],
+        "barcode": product["barcode"],
+        "product_name": product["product_name"],
+        "brand": product["brand"],
+        "ingredients": product["ingredients"],
         "quantity": data["quantity"],
         "price": data["price"]
     }
@@ -65,7 +71,7 @@ def delete_item(item_id):
         if item["id"] == item_id:
             inventory.remove(item)
             return "", 204
-        return jsonify({"error": "Item not found"}), 404
+    return jsonify({"error": "Item not found"}), 404
 
 
 if __name__ == "__main__":
