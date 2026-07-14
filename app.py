@@ -33,5 +33,31 @@ def add_item():
 
     return jsonify(new_item), 201
 
+@app.route("/items/<int:item_id>", methods=["PATCH"])
+def update_item(item_id):
+    data = request.get_json()
+    for item in inventory:
+        if item["id"] == item_id:
+            if "barcode" in data:
+                item["barcode"] = data["barcode"]
+
+            if "product_name" in data:
+                item["product_name"] = data["product_name"]
+            
+            if "brand" in data:
+                item["brand"] = data["brand"]
+
+            if "ingredients" in data:
+                item["ingredients"] = data["ingredients"]
+
+            if "quantity" in data:
+                item["quantity"] = data["quantity"]
+
+            if "price" in data:
+                item["price"] = data["price"]
+
+            return jsonify(item)
+    return jsonify({"error": "Item not found"}), 404
+
 if __name__ == "__main__":
     app.run(debug=True)
